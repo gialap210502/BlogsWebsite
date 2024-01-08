@@ -10,7 +10,7 @@ namespace CodePulse.API.Controllers;
 
 //https://localhost:xxxx/api/categories
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class CategoriesController : ControllerBase
 {
     private readonly ICategoryRepository categoryRepository;
@@ -44,5 +44,27 @@ public class CategoriesController : ControllerBase
 
         return Ok(response);
 
+    }
+
+    //GET: /api/categories
+    [HttpGet]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        //domain
+        var categories = await categoryRepository.GetAllAsync();
+
+        //map domain model to dto
+        var response = new List<CategoryDto>();
+        foreach (var category in categories)
+        {
+            response.Add(new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                UrlHandle = category.UrlHandle
+            });
+        }
+
+        return Ok(response);
     }
 }
