@@ -46,7 +46,7 @@ public class CategoriesController : ControllerBase
 
     }
 
-    //GET: /api/categories
+    // GET: http://locahost:5150/api/categories
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
@@ -64,6 +64,58 @@ public class CategoriesController : ControllerBase
                 UrlHandle = category.UrlHandle
             });
         }
+
+        return Ok(response);
+    }
+
+    // GET: http://locahost:5150/api/categories/{id}
+    [HttpGet]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
+    {
+        var existingCategory = await categoryRepository.GetById(id);
+
+        if (existingCategory == null)
+        {
+            return NotFound();
+        }
+
+        var response = new CategoryDto
+        {
+            Id = existingCategory.Id,
+            Name = existingCategory.Name,
+            UrlHandle = existingCategory.UrlHandle
+        };
+
+        return Ok(response);
+    }
+
+    // PUT: http://locahost:5150/api/categories/{id}
+    [HttpPut]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> EditCategory([FromRoute] Guid id, UpdateCategoryRequestDto request)
+    {
+        // Convert Dto to domain model
+        var category = new Category
+        {
+            Id = id,
+            Name = request.Name,
+            UrlHandle = request.UrlHandle
+        };
+
+        category = await categoryRepository.UpdateAsync(category);
+
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        //Convert Domain to Dto
+        var response = new Category{
+            Id = category.Id,
+            Name = category.Name,
+            UrlHandle = category.UrlHandle
+        };
 
         return Ok(response);
     }
