@@ -111,12 +111,36 @@ public class CategoriesController : ControllerBase
         }
 
         //Convert Domain to Dto
-        var response = new Category{
+        var response = new Category
+        {
             Id = category.Id,
             Name = category.Name,
             UrlHandle = category.UrlHandle
         };
 
         return Ok(response);
+    }
+
+    // DELETE http://locahost:5150/api/categories/{id}
+    [HttpDelete]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    {
+        var category = await categoryRepository.DeleteAsync(id);
+
+        if (category is null)
+        {
+            return NotFound();
+        }
+
+        // Convert domain model to Dto
+        var response = new CategoryDto
+        {
+            Id = category.Id,
+            Name = category.Name,
+            UrlHandle = category.UrlHandle
+        };
+
+        return Ok(response);    
     }
 }
