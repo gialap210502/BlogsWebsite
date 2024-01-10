@@ -37,7 +37,7 @@ public class BlogPostsController : ControllerBase
         blogPost = await blogPostRepository.CreateAsync(blogPost);
 
         // Convert Domain model to Dto
-        var response = new BlogPostRequestDto
+        var response = new BlogPostDto
         {
             Id = blogPost.Id,
             Author = blogPost.Author,
@@ -50,6 +50,32 @@ public class BlogPostsController : ControllerBase
             UrlHandle = blogPost.UrlHandle
         };
 
+        return Ok(response);
+    }
+
+    // GET : https://localhost:xxxx/api/blogposts
+    [HttpGet]
+    public async Task<IActionResult> GetAllBlogPosts()
+    {
+        var blogPosts = await blogPostRepository.GetAllAsync();
+
+        // convert Domain model to Dto
+        var response = new List<BlogPostDto>();
+        foreach (var blogPost in blogPosts)
+        {
+            response.Add(new BlogPostDto
+            {
+                Id = blogPost.Id,
+                Author = blogPost.Author,
+                Content = blogPost.Content,
+                FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                IsVisible = blogPost.IsVisible,
+                PublishedDate = blogPost.PublishedDate,
+                ShortDescription = blogPost.ShortDescription,
+                Title = blogPost.Title,
+                UrlHandle = blogPost.UrlHandle
+            });
+        }
         return Ok(response);
     }
 }
