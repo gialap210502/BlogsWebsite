@@ -23,6 +23,6 @@ public class BlogPostRepository : IBlogPostRepository
 
     public async Task<IEnumerable<BlogPost>> GetAllAsync()
     {
-        return await dbContext.BlogPosts.ToListAsync();
+        return await dbContext.BlogPosts.Include(x => x.Categories).ToListAsync();
     }
 }

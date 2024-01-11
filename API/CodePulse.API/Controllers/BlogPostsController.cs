@@ -11,15 +11,18 @@ namespace CodePulse.API.Controllers;
 public class BlogPostsController : ControllerBase
 {
     private readonly IBlogPostRepository blogPostRepository;
+    private readonly ICategoryRepository categoryRepository;
 
-    public BlogPostsController(IBlogPostRepository blogPostRepository)
+    public BlogPostsController(IBlogPostRepository blogPostRepository,
+    ICategoryRepository categoryRepository)
     {
         this.blogPostRepository = blogPostRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // POST: https://localhost:xxxx/api/blogposts
     [HttpPost]
-    public async Task<IActionResult> CreateBlogPost(CreateBlogPostRequestDto request)
+    public async Task<IActionResult> CreateBlogPost([FromBody] CreateBlogPostRequestDto request)
     {
         // Convert Dto to domain model
         var blogPost = new BlogPost
@@ -31,8 +34,18 @@ public class BlogPostsController : ControllerBase
             PublishedDate = request.PublishedDate,
             ShortDescription = request.ShortDescription,
             Title = request.Title,
-            UrlHandle = request.UrlHandle
+            UrlHandle = request.UrlHandle,
+            Categories = new List<Category>()
         };
+
+        foreach (var categoryGuid in request.Categories)
+        {
+            var existingcategory = await categoryRepository.GetById(categoryGuid);
+            if (existingcategory is not null)
+            {
+                blogPost.Categories.Add(existingcategory);
+            }
+        }
 
         blogPost = await blogPostRepository.CreateAsync(blogPost);
 
@@ -47,10 +60,17 @@ public class BlogPostsController : ControllerBase
             PublishedDate = blogPost.PublishedDate,
             ShortDescription = blogPost.ShortDescription,
             Title = blogPost.Title,
-            UrlHandle = blogPost.UrlHandle
+            UrlHandle = blogPost.UrlHandle,
+            Categories = blogPost.Categories.Select(x => new CategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle
+            }).ToList()
         };
 
         return Ok(response);
+
     }
 
     // GET : https://localhost:xxxx/api/blogposts
@@ -73,7 +93,13 @@ public class BlogPostsController : ControllerBase
                 PublishedDate = blogPost.PublishedDate,
                 ShortDescription = blogPost.ShortDescription,
                 Title = blogPost.Title,
-                UrlHandle = blogPost.UrlHandle
+                UrlHandle = blogPost.UrlHandle,
+                Categories = blogPost.Categories.Select(x => new CategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle
+                }).ToList()
             });
         }
         return Ok(response);
