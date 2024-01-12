@@ -17,11 +17,13 @@ export class EditBlogpostComponent implements OnInit, OnDestroy{
   id: string | null = null;
   model?: BlogPost;
   categories$?: Observable<Category[]>;
-  selectedcatgories?: string[]
+  selectedcatgories?: string[];
+  isImageSelectorVisible: boolean = false;
 
   routeSubscription?: Subscription;
   updateBlogPostSubsciption?: Subscription;
   getBlogPostSubscription?: Subscription;
+  deleteBlogPostSubscription?: Subscription;
 
   constructor(private route: ActivatedRoute,
     private blogPostService: BlogPostService,
@@ -55,6 +57,25 @@ export class EditBlogpostComponent implements OnInit, OnDestroy{
     })
   }
 
+  openImageSelector(): void {
+    this.isImageSelectorVisible = true;
+  }
+  closeImageSelector(): void {
+    this.isImageSelectorVisible = false;
+  }
+
+  onDelete(): void {
+    if(this.id){
+      // call service and delete blog
+      this.deleteBlogPostSubscription = this.blogPostService.deleteBlogPost(this.id)
+      .subscribe({
+        next: (response) => {
+          this.router.navigateByUrl('/admin/blogposts');
+        }
+      });
+    }
+  }
+
   onFormSubmit(): void {
     //convert this model to request obj
     if(this.model && this.id){
@@ -84,6 +105,7 @@ export class EditBlogpostComponent implements OnInit, OnDestroy{
     this.routeSubscription?.unsubscribe();
     this.updateBlogPostSubsciption?.unsubscribe();
     this.getBlogPostSubscription?.unsubscribe();
+    this.deleteBlogPostSubscription?.unsubscribe();
   }
 
 }

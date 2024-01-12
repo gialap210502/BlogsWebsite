@@ -181,8 +181,9 @@ public class BlogPostsController : ControllerBase
         }
 
         //Convert Domain model to Dto
-        var response = new BlogPostDto{
-                        Id = blogPost.Id,
+        var response = new BlogPostDto
+        {
+            Id = blogPost.Id,
             Author = blogPost.Author,
             Content = blogPost.Content,
             FeaturedImageUrl = blogPost.FeaturedImageUrl,
@@ -201,5 +202,40 @@ public class BlogPostsController : ControllerBase
 
         return Ok(response);
 
+    }
+
+    // DELETE: https://localhost:xxxx/api/blogposts/{id}
+    [HttpDelete]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> DeleteBlogPost([FromRoute] Guid id)
+    {
+        var deletedBlogPost = await blogPostRepository.DeleteAsync(id);
+
+        if (deletedBlogPost == null)
+        {
+            return NotFound();
+        }
+
+        // Convert Domain model to Dto
+        var response = new BlogPostDto
+        {
+            Id = deletedBlogPost.Id,
+            Author = deletedBlogPost.Author,
+            Content = deletedBlogPost.Content,
+            FeaturedImageUrl = deletedBlogPost.FeaturedImageUrl,
+            IsVisible = deletedBlogPost.IsVisible,
+            PublishedDate = deletedBlogPost.PublishedDate,
+            ShortDescription = deletedBlogPost.ShortDescription,
+            Title = deletedBlogPost.Title,
+            UrlHandle = deletedBlogPost.UrlHandle
+            // Categories = deletedBlogPost.Categories.Select(x => new CategoryDto
+            // {
+            //     Id = x.Id,
+            //     Name = x.Name,
+            //     UrlHandle = x.UrlHandle
+            // }).ToList()
+        };
+
+        return Ok(response);
     }
 }
