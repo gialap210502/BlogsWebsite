@@ -35,6 +35,7 @@ export class ImageSelectorComponent implements OnInit {
     this.file = element.files?.[0];
   }
 
+
   uploadImage(): void {
     if (this.file && this.fileName !== '' && this.title !== '') {
       //Image service to upload the image
@@ -46,6 +47,10 @@ export class ImageSelectorComponent implements OnInit {
           }
         });
     }
+  }
+
+  selectImage(image: BlogImage): void {
+    this.imageService.selectImage(image);
   }
 
   private getImages(){
