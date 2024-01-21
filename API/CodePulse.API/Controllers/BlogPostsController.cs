@@ -141,6 +141,44 @@ public class BlogPostsController : ControllerBase
         return Ok(response);
     }
 
+    // GET: https://localhost:xxxx/api/blogposts/{urlHandle}
+    [HttpGet]
+    [Route("{urlHandle}")]
+    public async Task<IActionResult> GetBlogPostByUrlHandle([FromRoute] string urlHandle)
+    {
+        //get blog details for repository
+        var blogPost = await blogPostRepository.GetByUrlHandleAsync(urlHandle);
+
+
+        if (blogPost is null)
+        {
+            return NotFound();
+        }
+
+        //Convert Domain model to Dto
+        var response = new BlogPostDto
+        {
+            Id = blogPost.Id,
+            Author = blogPost.Author,
+            Content = blogPost.Content,
+            FeaturedImageUrl = blogPost.FeaturedImageUrl,
+            IsVisible = blogPost.IsVisible,
+            PublishedDate = blogPost.PublishedDate,
+            ShortDescription = blogPost.ShortDescription,
+            Title = blogPost.Title,
+            UrlHandle = blogPost.UrlHandle,
+            Categories = blogPost.Categories.Select(x => new CategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle
+            }).ToList()
+        };
+
+        return Ok(response);
+
+    }
+
     // PUT: https://localhost:xxxx/api/blogposts/{id}
     [HttpPut]
     [Route("{id:Guid}")]
